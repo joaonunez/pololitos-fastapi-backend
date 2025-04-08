@@ -4,7 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from sqlmodel import SQLModel
 from app.core.db import engine
+from app.core import cloudinary_config
 from app.routes.user_routes import router as user_router
+from app.routes.service_routes import router as service_router
 import app.models  # importa los modelos para crear las tablas
 
 app = FastAPI()
@@ -24,6 +26,7 @@ app.add_middleware(
 
 # Registra routers
 app.include_router(user_router)
+app.include_router(service_router)
 
 @app.on_event("startup")
 def on_startup():
