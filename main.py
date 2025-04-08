@@ -1,14 +1,28 @@
 import traceback
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse
 from sqlmodel import SQLModel
 from app.core.db import engine
 from app.routes.user_routes import router as user_router
-
-# 👇 Esto importa todos los modelos antes de crear las tablas
-import app.models  
+import app.models  # importa los modelos para crear las tablas
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",  # Tu frontend en desarrollo
+    # "https://tudominio.com",  # El dominio real en producción
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,              # Aquí se especifican los orígenes permitidos
+    allow_credentials=True,
+    allow_methods=["*"],                # Métodos permitidos: GET, POST, etc.
+    allow_headers=["*"],                # Encabezados permitidos
+)
+
+# Registra routers
 app.include_router(user_router)
 
 @app.on_event("startup")

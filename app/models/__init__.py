@@ -4,3 +4,5 @@ from .category_model import Category
 from .request_model import Request
 from .review_model import Review
 from .chat_model import Chat
+
+__all__ = ["User", "Service", "Category", "Request", "Review", "Chat"]

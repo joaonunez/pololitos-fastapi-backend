@@ -9,7 +9,7 @@ class LoginUserResponse(BaseModel):
     email: str
     first_name: str
     last_name: str
-    profile_image: str
+    profile_picture: str
     phone: str
     city: str
     token: str

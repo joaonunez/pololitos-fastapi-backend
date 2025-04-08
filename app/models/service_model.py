@@ -1,32 +1,29 @@
 from __future__ import annotations
-from sqlmodel import SQLModel, Field, Relationship
-from sqlalchemy.orm import Mapped
-from typing import Optional, TYPE_CHECKING
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from datetime import datetime
-from .category_model import Category
 
-if TYPE_CHECKING:
-    from .user_model import User
+from .base import Base
 
-class Service(SQLModel, table=True):
+class Service(Base):
     __tablename__ = "service"
-    model_config = {
-        "arbitrary_types_allowed": True
-    }
 
-    id: Optional[int] = Field(default=None, primary_key=True)
-    name: str = Field(min_length=3, max_length=100)
-    description: str = Field(min_length=10)
-    price: float
-    city: str
-    publish_date: datetime = Field(default_factory=datetime.utcnow)
-    image_url: Optional[str] = None
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    description = Column(String, nullable=False)
+    price = Column(Float, nullable=False)
+    city = Column(String(100), nullable=False)
+    publish_date = Column(DateTime, default=datetime.utcnow)
+    image_url = Column(String, nullable=True)
 
-    user_id: int = Field(foreign_key="user.id")
-    category_id: int = Field(foreign_key="category.id")
+    user_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    category_id = Column(Integer, ForeignKey("category.id"), nullable=False)
 
-    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
-    updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    user: Mapped["User"] = Relationship(back_populates="services")
-    category: Mapped[Category] = Relationship(back_populates="services")
+    # Relaciones
+    user = relationship("User", back_populates="services")
+    category = relationship("Category", back_populates="services")
+    reviews = relationship("Review", back_populates="service")
+

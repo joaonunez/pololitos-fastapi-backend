@@ -1,30 +1,26 @@
 from __future__ import annotations
-from sqlmodel import SQLModel, Field, Relationship
-from sqlalchemy.orm import Mapped
-from typing import Optional, List, TYPE_CHECKING
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
-if TYPE_CHECKING:
-    from .service_model import Service
-    from .request_model import Request
+from .base import Base
 
-class User(SQLModel, table=True):
+class User(Base):
     __tablename__ = "user"
-    model_config = {
-        "arbitrary_types_allowed": True
-    }
 
-    id: Optional[int] = Field(default=None, primary_key=True)
-    first_name: str = Field(min_length=3)
-    last_name: str = Field(min_length=3)
-    email: str
-    password: str
-    phone: str
-    city: str
-    profile_image: Optional[str] = None
+    id = Column(Integer, primary_key=True, index=True)
+    first_name = Column(String(50), nullable=False)
+    last_name = Column(String(50), nullable=False)
+    email = Column(String(100), unique=True, index=True, nullable=False)
+    password = Column(String, nullable=False)
+    phone = Column(String(20))
+    city = Column(String(100))
+    profile_picture = Column(String)
 
-    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
-    updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
 
-    services: Mapped[List["Service"]] = Relationship(back_populates="user")
-    requests: Mapped[List["Request"]] = Relationship(back_populates="requester")
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+
+    services = relationship("Service", back_populates="user", cascade="all, delete-orphan")
+    requests = relationship("Request", back_populates="requester", cascade="all, delete-orphan")
+    reviews = relationship("Review", back_populates="user")

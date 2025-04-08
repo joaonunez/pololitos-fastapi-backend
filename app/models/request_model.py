@@ -1,29 +1,24 @@
 from __future__ import annotations
-from sqlmodel import SQLModel, Field, Relationship
-from sqlalchemy.orm import Mapped
-from typing import Optional, TYPE_CHECKING
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from datetime import datetime
 
-if TYPE_CHECKING:
-    from .user_model import User
-    from .service_model import Service
+from .base import Base
 
-class Request(SQLModel, table=True):
+class Request(Base):
     __tablename__ = "request"
-    model_config = {
-        "arbitrary_types_allowed": True
-    }
 
-    id: Optional[int] = Field(default=None, primary_key=True)
-    status: str
-    request_date: datetime = Field(default_factory=datetime.utcnow)
-    additional_comment: Optional[str] = None
+    id = Column(Integer, primary_key=True, index=True)
+    status = Column(String(50), nullable=False)
+    request_date = Column(DateTime, default=datetime.utcnow)
+    additional_comment = Column(String, nullable=True)
 
-    requester_id: int = Field(foreign_key="user.id")
-    service_id: int = Field(foreign_key="service.id")
+    requester_id = Column(Integer, ForeignKey("user.id"), nullable=False)
+    service_id = Column(Integer, ForeignKey("service.id"), nullable=False)
 
-    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
-    updated_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    requester: Mapped["User"] = Relationship(back_populates="requests")
-    service: Mapped["Service"] = Relationship()
+    # Relaciones
+    requester = relationship("User", back_populates="requests")
+    service = relationship("Service")

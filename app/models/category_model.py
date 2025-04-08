@@ -1,22 +1,17 @@
 from __future__ import annotations
-from typing import Optional, List, TYPE_CHECKING
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.orm import relationship
 from datetime import datetime
-from sqlmodel import SQLModel, Relationship
-from sqlalchemy.orm import Mapped, mapped_column
 
-if TYPE_CHECKING:
-    from .service_model import Service
+from .base import Base
 
-class Category(SQLModel, table=True):
+class Category(Base):
     __tablename__ = "category"
-    model_config = {
-        "arbitrary_types_allowed": True
-    }
 
-    id: Optional[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
 
-    created_at: Mapped[Optional[datetime]] = mapped_column(default_factory=datetime.utcnow)
-    updated_at: Mapped[Optional[datetime]] = mapped_column(default_factory=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    services: Mapped[List["Service"]] = Relationship(back_populates="category")
+    services = relationship("Service", back_populates="category")

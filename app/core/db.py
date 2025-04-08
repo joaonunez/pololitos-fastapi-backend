@@ -2,14 +2,17 @@ from sqlmodel import create_engine, Session
 from dotenv import load_dotenv
 import os
 
-load_dotenv()  # Carga las variables desde .env
+load_dotenv()  # Carga variables del archivo .env
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-# Crea el engine de SQLAlchemy (usado por SQLModel)
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL no está definido en el archivo .env")
+
+# Crea el motor de SQLAlchemy con SQLModel
 engine = create_engine(DATABASE_URL, echo=True)
 
-# Función para inyectar sesión de base de datos (usado con Depends)
+# Dependency para inyectar la sesión de base de datos
 def get_db():
     with Session(engine) as session:
         yield session
