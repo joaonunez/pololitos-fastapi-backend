@@ -15,3 +15,9 @@ def get_paginated_services(db: Session, page: int, size: int):
     results = db.scalars(stmt).all()
 
     return total, results
+
+def search_services_by_name(db: Session, keyword: str, page: int, size: int):
+    query = db.query(Service).filter(func.lower(Service.name).like(f"%{keyword.lower()}%"))
+    total = query.count()
+    services = query.order_by(Service.created_at.desc()).offset(page * size).limit(size).all()
+    return total, services
