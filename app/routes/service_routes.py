@@ -1,5 +1,5 @@
 # app/routes/service_routes.py
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from math import ceil
 from sqlalchemy.orm import Session
 
@@ -7,7 +7,8 @@ from app.core.db import get_db
 from app.schemas.service_schema import ServiceOut
 from app.services.service_service import (get_paginated_services,
                                         search_services_by_name ,
-                                        get_my_services
+                                        get_my_services,
+                                        get_service_by_id
                                         )
 
 from app.auth.jwt_bearer import get_current_user_id
@@ -63,3 +64,10 @@ def get_my_services_route(
         "pageSize": size,
         "content": [ServiceOut.from_orm(service) for service in services],
     }
+
+@router.get("/public/service/{id}", response_model=ServiceOut)
+def public_service_by_id(id:int, db:Session = Depends(get_db)):
+    service = get_service_by_id(db, id)
+    if not service:
+        raise HTTPException(status_code=404, detail="servicio no encontrado")
+    return ServiceOut.from_orm(service)

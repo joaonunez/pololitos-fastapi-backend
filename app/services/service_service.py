@@ -27,3 +27,6 @@ def get_my_services(db: Session, user_id: int, page: int, size: int):
     total = query.count()
     services = query.order_by(Service.created_at.desc()).offset(page * size).limit(size).all()
     return total, services
+
+def get_service_by_id(db: Session, service_id: int):
+    return db.query(Service).filter(Service.id == service_id).first()
