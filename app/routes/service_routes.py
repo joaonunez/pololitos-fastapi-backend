@@ -5,7 +5,12 @@ from sqlalchemy.orm import Session
 
 from app.core.db import get_db
 from app.schemas.service_schema import ServiceOut
-from app.services.service_service import get_paginated_services, search_services_by_name
+from app.services.service_service import (get_paginated_services,
+                                        search_services_by_name ,
+                                        get_my_services
+                                        )
+
+from app.auth.jwt_bearer import get_current_user_id
 
 router = APIRouter(prefix="/api/services", tags=["Services"])
 
@@ -41,4 +46,20 @@ def search_services(
         "pageSize": size,
         "content": [ServiceOut.from_orm(service) for service in services],
         "searchTerm": keyword
+    }
+
+@router.get("/my-services", response_model=dict)
+def get_my_services_route(
+    page: int = Query(0, ge=0),
+    size: int = Query(4, gt=0),
+    user_id: int = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    total, services = get_my_services(db, user_id, page, size)
+    return {
+        "totalPages": ceil(total / size),
+        "totalElements": total,
+        "pageNumber": page,
+        "pageSize": size,
+        "content": [ServiceOut.from_orm(service) for service in services],
     }
